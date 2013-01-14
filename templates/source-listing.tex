@@ -1,0 +1,36 @@
+\documentclass{standalone}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+
+\lstdefinelanguage{Pig}
+{keywords={register, foreach, generate, as, flatten, group, by, COUNT, order, limit, desc, load, using,
+           into, LOWER, store},%
+sensitive=true,%
+alsoletter={\$},%
+comment=[l]{--},%
+string=[b]",%
+string=[b]'%
+}
+
+\lstset{
+basicstyle=\ttfamily\footnotesize,
+keywordstyle=\color{javadocblue}\bfseries,
+stringstyle=\color{javagreen},
+commentstyle=\bfseries\color{javared},
+morecomment=[s][\color{javadocblue}]{/**}{*/},
+tabsize=2,
+showspaces=false,
+showstringspaces=false}
+
+\lstset{language={{ lang }}} % Select langauge
+
+\begin{document}
+\begin{lstlisting}
+{{ source }}
+\end{lstlisting}
+\end{document}
