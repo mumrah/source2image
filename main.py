@@ -4,15 +4,20 @@ import shlex
 import subprocess
 import tempfile
 
-from flask import Flask, render_template, make_response
+from flask import Flask, request, render_template, make_response
 app = Flask(__name__)
 
 
 @app.route("/")
-def hello():
+def index():
+    return render_template("index.html")
+
+@app.route("/render", methods=["POST"])
+def render():
+    lang = request.form['lang']
+    source = request.form['source']
     wd = tempfile.mkdtemp()
-    print(wd)
-    latexBody = render_template('source-listing.tex', lang="Java", source="System.err.println(\"Hello, World\")")
+    latexBody = render_template("source-listing.tex", lang=lang, source=source)
     inFile = StringIO(latexBody)
     p1 = subprocess.Popen(["pdflatex"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
     (stdout, stderr) = p1.communicate(latexBody)
@@ -23,8 +28,8 @@ def hello():
 
     png = open(os.path.join(wd, "texput.png"), "r").read()
     resp = make_response(png)
-    resp.headers['Content-Type'] = "image/png"
-    #resp.headers['Content-Disposition'] = "attachment; filename=listing.png"
+    resp.headers["Content-Type"] = "image/png"
+    #resp.headers["Content-Disposition"] = "attachment; filename=listing.png"
     return resp
 
 
