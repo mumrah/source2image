@@ -41,8 +41,11 @@ def index():
 def render():
     lang = request.form['lang']
     source = request.form['source']
+    mode = request.form['mode']
     assert lang in languages
+
     wd = tempfile.mkdtemp()
+    app.logger.info("Creating temp directory %s" % wd)
 
     latexBody = render_template("source-listing.tex", lang=lang, source=source)
     inFile = StringIO(latexBody)
@@ -64,7 +67,9 @@ def render():
     png = open(os.path.join(wd, "texput.png"), "r").read()
     resp = make_response(png)
     resp.headers["Content-Type"] = "image/png"
-    #resp.headers["Content-Disposition"] = "attachment; filename=listing.png"
+
+    if mode == "download":
+        resp.headers["Content-Disposition"] = "attachment; filename=%s-listing.png" % lang.lower()
 
     app.logger.info("Removing %s" % wd)
     shutil.rmtree(wd)

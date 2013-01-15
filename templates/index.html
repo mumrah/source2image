@@ -15,7 +15,7 @@
 <p>Uses LaTeX "listings" package to generate high quality typeset raster images of your source code</p>
 <!-- Actual content -->
 <form action="/render" method="post">
-  <textarea style="text-align:top;font-family:monospace" name="source" rows="30" cols="80">{{ source }}</textarea>
+  <textarea style="text-align:top;font-family:monospace" name="source" rows="24" cols="80">{{ source }}</textarea>
   </br>
   
   <select name="lang">
@@ -24,6 +24,10 @@
       {% endfor %}
   </select>
   </br/>
+
+  <input type="radio" name="mode" value="display" checked="true">display</input>
+  <input type="radio" name="mode" value="download">download</input>
+  </br>
 
   <button type="submit">Render</button>
 </form>
