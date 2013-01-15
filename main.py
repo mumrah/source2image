@@ -31,7 +31,20 @@ if not app.debug:
     app.logger.addHandler(handler)
     app.logger.setLevel(DEBUG)
 
-languages = ["Python", "Java", "C"]
+languages = ['Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
+             'Haskell', 'Lisp', 'erlang', 'ABAP', 'ACSL', 'Ada', 'Algol',
+             'Ant', 'Assembler', 'Awk', 'bash', 'Basic', 'Caml', 'CIL',
+             'Clean', 'Cobol', 'Comal 80', 'command.com', 'Comsol',
+             'csh', 'Delphi', 'Eiffel', 'Elan', 'Euphoria', 'Fortran',
+             'GCL', 'Gnuplot', 'IDL', 'inform', 'JVMIS', 'ksh', 'Lingo',
+             'Logo', 'make', 'Mathematica', 'Matlab', 'Mercury',
+             'MetaPost', 'Miranda', 'Mizar', 'ML', 'Modula-2', 'MuPAD',
+             'NASTRAN', 'Oberon-2', 'OCL', 'Octave', 'Oz', 'Pascal',
+             'Perl', 'PHP', 'PL/I', 'Plasm', 'PostScript', 'POV',
+             'Prolog', 'Promela', 'PSTricks', 'R', 'Reduce', 'Rexx',
+             'RSL', 'S', 'SAS', 'Scilab', 'sh', 'SHELXL', 'Simula',
+             'SPARQL', 'tcl', 'TeX', 'VBScript', 'Verilog', 'VHDL',
+             'VRML', 'XSLT']
 
 @app.route("/")
 def index():
