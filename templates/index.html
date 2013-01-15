@@ -1,10 +1,10 @@
 <form action="/render" method="post">
-  <textarea style="text-align:top;font-family:monospace" name="source" rows="30" cols="80">System.err.println("Hello, World");</textarea>
+  <textarea style="text-align:top;font-family:monospace" name="source" rows="30" cols="80">{{ source }}</textarea>
   </br>
   
   <select name="lang">
+      <option value="Python" selected="true">Python</option>
       <option value="Java">Java</option>
-      <option value="Python">Python</option>
   </select>
   </br/>
 

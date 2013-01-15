@@ -8,9 +8,17 @@ import tempfile
 from flask import Flask, request, render_template, make_response
 app = Flask(__name__)
 
+if not app.debug:
+    import logging
+    import logging.handlers
+    handler = logging.handlers.RotatingFileHandler("logs/app.log", maxBytes=1024*1024*32, backupCount=10)
+    handler.setLevel(logging.DEBUG)
+    app.logger.addHandler(handler)
+    app.logger.info("OK")
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", source=open("main.py").read())
 
 @app.route("/render", methods=["POST"])
 def render():
@@ -35,10 +43,10 @@ def render():
     resp = make_response(png)
     resp.headers["Content-Type"] = "image/png"
     #resp.headers["Content-Disposition"] = "attachment; filename=listing.png"
+    logger.info("Hello")
 
     shutil.rmtree(wd)
     return resp
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
