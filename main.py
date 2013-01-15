@@ -16,14 +16,17 @@ if not app.debug:
     app.logger.addHandler(handler)
     app.logger.info("OK")
 
+languages = ["Python", "Java", "C"]
+
 @app.route("/")
 def index():
-    return render_template("index.html", source=open("main.py").read())
+    return render_template("index.html", source=open("main.py").read(), languages=languages)
 
 @app.route("/render", methods=["POST"])
 def render():
     lang = request.form['lang']
     source = request.form['source']
+    assert lang in languages
     wd = tempfile.mkdtemp()
 
     latexBody = render_template("source-listing.tex", lang=lang, source=source)
@@ -43,8 +46,8 @@ def render():
     resp = make_response(png)
     resp.headers["Content-Type"] = "image/png"
     #resp.headers["Content-Disposition"] = "attachment; filename=listing.png"
-    logger.info("Hello")
 
+    app.logger.info("Removing %s" % wd)
     shutil.rmtree(wd)
     return resp
 

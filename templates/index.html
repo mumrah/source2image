@@ -4,8 +4,9 @@
   </br>
   
   <select name="lang">
-      <option value="Python" selected="true">Python</option>
-      <option value="Java">Java</option>
+      {% for lang in languages %}
+      <option value="{{ lang }}">{{ lang }}</option>
+      {% endfor %}
   </select>
   </br/>
 
