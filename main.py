@@ -57,7 +57,9 @@ def render():
     lang = request.form['lang']
     source = request.form['source']
     mode = request.form['mode']
-    correlation_id = hash(frozenset([lang, source, mode, time.time()])) 
+    fmt = request.form['format']
+    correlation_id = hash(frozenset([lang, source, mode, fmt, time.time()])) 
+    assert fmt in ("png", "pdf")
     assert lang in languages
 
     app.logger.info("[%d] Begin handle of request" % correlation_id)
@@ -79,20 +81,29 @@ def render():
         app.logger.debug("[%d] pdflatex stdout: %s" % (correlation_id, stdout))
         app.logger.debug("[%d] pdflatex stderr: %s" % (correlation_id, stderr))
 
-    p2args = shlex.split("convert -density 300 texput.pdf -quality 90 texput.png")
-    p2 = subprocess.Popen(p2args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
-    (stdout, stderr) = p2.communicate()
-    if p2.returncode != 0:
-        app.logger.error("[%d] convert had an error, check debug logs" % correlation_id)
-        app.logger.debug("[%d] convert stdout: %s" % (correlation_id, stdout))
-        app.logger.debug("[%d] convert stderr: %s" % (correlation_id, stderr))
+    if fmt == "pdf":
+        fileBytes = open(os.path.join(wd, "texput.pdf"), "r").read()
+        contentType = "application/pdf"
+        fileName = "%s-listing.pdf" % lang.lower()
 
-    png = open(os.path.join(wd, "texput.png"), "r").read()
-    resp = make_response(png)
-    resp.headers["Content-Type"] = "image/png"
+    elif fmt == "png":
+        p2args = shlex.split("convert -density 200 texput.pdf -quality 90 texput.png")
+        p2 = subprocess.Popen(p2args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
+        (stdout, stderr) = p2.communicate()
+        if p2.returncode != 0:
+            app.logger.error("[%d] convert had an error, check debug logs" % correlation_id)
+            app.logger.debug("[%d] convert stdout: %s" % (correlation_id, stdout))
+            app.logger.debug("[%d] convert stderr: %s" % (correlation_id, stderr))
+
+        fileBytes = open(os.path.join(wd, "texput.png"), "r").read()
+        contentType = "image/png"
+        fileName = "%s-listing.png" % lang.lower()
+
+    resp = make_response(fileBytes)
+    resp.headers["Content-Type"] = contentType
 
     if mode == "download":
-        resp.headers["Content-Disposition"] = "attachment; filename=%s-listing.png" % lang.lower()
+        resp.headers["Content-Disposition"] = "attachment; filename=%s" % fileName
 
     app.logger.info("[%d] Removing %s" % (correlation_id, wd))
     shutil.rmtree(wd)
