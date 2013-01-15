@@ -4,4 +4,4 @@ A simple web service to typeset source code listing with LaTeX and generate imag
 
 Like this
 
-![source2image source](github.com/mumrah/source2image/example.png)
+![source2image source](https://raw.github.com/mumrah/source2image/master/example.png)
