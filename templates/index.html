@@ -31,8 +31,9 @@
   </br>
 
   Format:
-  <input type="radio" name="format" value="png" checked="true">png</input>
-  <input type="radio" name="format" value="pdf">pdf</input>
+  {% for fmt in formats %}
+  <input type="radio" name="format" value="{{ fmt }}" {% if loop.index == 1 %}checked="true"{% endif %}>{{ fmt }}</input>
+  {% endfor %}
   </br>
 
   <button type="submit">Render</button>

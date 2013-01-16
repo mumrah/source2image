@@ -33,7 +33,7 @@ if not app.debug:
     app.logger.addHandler(handler)
     app.logger.setLevel(DEBUG)
 
-languages = ['Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
+languages = ('Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
              'Haskell', 'Lisp', 'erlang', 'ABAP', 'ACSL', 'Ada', 'Algol',
              'Ant', 'Assembler', 'Awk', 'bash', 'Basic', 'Caml', 'CIL',
              'Clean', 'Cobol', 'Comal 80', 'command.com', 'Comsol',
@@ -42,15 +42,20 @@ languages = ['Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
              'Logo', 'make', 'Mathematica', 'Matlab', 'Mercury',
              'MetaPost', 'Miranda', 'Mizar', 'ML', 'Modula-2', 'MuPAD',
              'NASTRAN', 'Oberon-2', 'OCL', 'Octave', 'Oz', 'Pascal',
-             'Perl', 'PHP', 'PL/I', 'Plasm', 'PostScript', 'POV',
+             'Perl', 'PHP', 'Pig', 'PL/I', 'Plasm', 'PostScript', 'POV',
              'Prolog', 'Promela', 'PSTricks', 'R', 'Reduce', 'Rexx',
              'RSL', 'S', 'SAS', 'Scilab', 'sh', 'SHELXL', 'Simula',
              'SPARQL', 'tcl', 'TeX', 'VBScript', 'Verilog', 'VHDL',
-             'VRML', 'XSLT']
+             'VRML', 'XSLT')
+
+formats = ("png", "pdf", "jpg")
 
 @app.route("/")
 def index():
-    return render_template("index.html", source=open("main.py").read(), languages=languages)
+    return render_template("index.html", 
+	     source=open("main.py").read(),
+             languages=languages,
+             formats=formats)
 
 @app.route("/render", methods=["POST"])
 def render():
@@ -59,7 +64,7 @@ def render():
     mode = request.form['mode']
     fmt = request.form['format']
     correlation_id = hash(frozenset([lang, source, mode, fmt, time.time()])) 
-    assert fmt in ("png", "pdf")
+    assert fmt in formats
     assert lang in languages
 
     app.logger.info("[%d] Begin handle of request" % correlation_id)
@@ -87,6 +92,8 @@ def render():
         fileName = "%s-listing.pdf" % lang.lower()
 
     elif fmt == "png":
+	# "-background '#RGB' -flatten" for non-transparent images
+	# "-resize 400x400" for resizing
         p2args = shlex.split("convert -density 200 texput.pdf -quality 90 texput.png")
         p2 = subprocess.Popen(p2args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
         (stdout, stderr) = p2.communicate()
@@ -98,6 +105,19 @@ def render():
         fileBytes = open(os.path.join(wd, "texput.png"), "r").read()
         contentType = "image/png"
         fileName = "%s-listing.png" % lang.lower()
+
+    elif fmt == "jpg":
+        p2args = shlex.split("convert -density 200 texput.pdf -flatten texput.jpg")
+        p2 = subprocess.Popen(p2args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
+        (stdout, stderr) = p2.communicate()
+        if p2.returncode != 0:
+            app.logger.error("[%d] convert had an error, check debug logs" % correlation_id)
+            app.logger.debug("[%d] convert stdout: %s" % (correlation_id, stdout))
+            app.logger.debug("[%d] convert stderr: %s" % (correlation_id, stderr))
+
+        fileBytes = open(os.path.join(wd, "texput.jpg"), "r").read()
+        contentType = "image/jpeg"
+        fileName = "%s-listing.jpg" % lang.lower()
 
     resp = make_response(fileBytes)
     resp.headers["Content-Type"] = contentType
