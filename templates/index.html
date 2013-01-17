@@ -50,6 +50,17 @@
   <input type="radio" name="format" value="{{ fmt }}" {% if loop.index == 1 %}checked="true"{% endif %}>{{ fmt }}</input>
   {% endfor %}
   </br>
+  </br>
+
+  <em>Background:</em>
+  <input onclick="document.getElementById('alpha').checked=false;" style="vertical-align:text-bottom" type="color" value="#FFFFFF" name="background"/>
+  </br>
+  </br>
+
+  <em>Transparency:</em>
+  <input type="checkbox" checked="true" name="alpha" id="alpha"/>
+  </br>
+  </br>
 
   <button type="submit" style="font-size:0.8em; padding: 1em 3em">Render</button>
   </div>

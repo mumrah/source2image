@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import time
 
+from webcolors import hex_to_rgb
 from flask import Flask, request, render_template, make_response
 app = Flask(__name__)
 
@@ -33,6 +34,11 @@ if not app.debug:
     app.logger.addHandler(handler)
     app.logger.setLevel(DEBUG)
 
+# Need a special Jinja env for dealing with LaTeX
+texenv = app.create_jinja_environment()
+texenv.variable_start_string = '((('
+texenv.variable_end_string = ')))'
+
 languages = ('Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
              'Haskell', 'Lisp', 'erlang', 'ABAP', 'ACSL', 'Ada', 'Algol',
              'Ant', 'Assembler', 'Awk', 'bash', 'Basic', 'Caml', 'CIL',
@@ -50,6 +56,8 @@ languages = ('Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
 
 formats = ("png", "pdf", "jpg")
 
+max_dimension = 2048
+
 @app.route("/")
 def index():
     return render_template("index.html", 
@@ -63,9 +71,16 @@ def render():
     source = request.form['source']
     mode = request.form['mode']
     fmt = request.form['format']
-    correlation_id = hash(frozenset([lang, source, mode, fmt, time.time()])) 
+    background = request.form['background']
+    alpha = request.form.get('alpha','off') == "on"
+    request_params = frozenset([lang, source, mode, fmt, background, alpha, time.time()])
+    print(request_params)
+
+    correlation_id = hash(request_params) 
     assert fmt in formats
     assert lang in languages
+
+    background_rgb = hex_to_rgb(background)
 
     app.logger.info("[%d] Begin handle of request" % correlation_id)
     app.logger.debug("[%d] Handling request for lang: %s, source: %s" % (correlation_id, lang, source))
@@ -73,7 +88,12 @@ def render():
     wd = tempfile.mkdtemp()
     app.logger.info("[%d] Creating temp directory %s" % (correlation_id, wd))
 
-    latexBody = render_template("source-listing.tex", lang=lang, source=source)
+    latexTmpl = texenv.get_template("source-listing.tex")
+    if alpha == True: # Make it transparent
+        latexBody = latexTmpl.render(lang=lang, source=source)
+    else:
+        latexBody = latexTmpl.render(lang=lang, source=source, background="%02d,%02d,%02d" % background_rgb)
+
     inFile = StringIO(latexBody)
     standalone = os.path.join(os.getcwd(), "standalone")
     env = os.environ
