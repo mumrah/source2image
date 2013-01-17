@@ -6,9 +6,6 @@
 \definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
 \definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
 \definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
-{% if background -%}
-\definecolor{background}{RGB}{((( background )))}
-{%- endif %}
 
 \lstdefinelanguage{Pig}
 {keywords={register, foreach, generate, as, flatten, group, by, COUNT, order, limit, desc, load, using,
@@ -21,8 +18,7 @@ string=[b]'%
 }
 
 \lstset{
-{% if background -%}backgroundcolor=\color{background},
-{%- endif %}basicstyle=\ttfamily\footnotesize,
+basicstyle=\ttfamily\footnotesize,
 keywordstyle=\color{javadocblue}\bfseries,
 stringstyle=\color{javagreen},
 commentstyle=\bfseries\color{javared},

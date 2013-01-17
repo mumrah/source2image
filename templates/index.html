@@ -6,17 +6,9 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 <meta http-equiv="content-language" content="EN"/>
 <meta name="robots" content="index, nofollow"/>
-<!-- Flattr -->
-<script type="text/javascript">
-/* <![CDATA[ */
-    (function() {
-        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-        s.type = 'text/javascript';
-        s.async = true;
-        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
-        t.parentNode.insertBefore(s, t);
-    })();
-/* ]]> */</script>
+{% autoescape false %}
+{{ extra_head }}
+{% endautoescape %}
 </head>
 <body>
 <!-- GitHub banner -->
@@ -67,37 +59,8 @@
 </form>
 <div style="clear:both; padding:1em;"/>
 </hr>
-<!-- Flattr -->
-<a class="FlattrButton" style="display:none;" href="http://source2image.info/"></a>
-<noscript><a href="http://flattr.com/thing/1102116/Generate-pretty-pictures-of-your-source-code" target="_blank">
-<img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript>
-
-<!-- Google AdSense -->
-<script type="text/javascript"><!--
-google_ad_client = "ca-pub-3525795981797508";
-/* source2image */
-google_ad_slot = "1169049790";
-google_ad_width = 468;
-google_ad_height = 60;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
-
-<!-- Google Analytics -->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-37682503-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
+{% autoescape false %}
+{{ extra_foot }}
+{% endautoescape %}
 </body>
 </html>

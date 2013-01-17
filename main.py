@@ -11,7 +11,10 @@ import tempfile
 import time
 
 from webcolors import hex_to_rgb
-from flask import Flask, request, render_template, make_response
+from flask import Flask, abort, request, render_template, make_response
+
+import extras
+
 app = Flask(__name__)
 
 if not app.debug:
@@ -56,14 +59,45 @@ languages = ('Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
 
 formats = ("png", "pdf", "jpg")
 
-max_dimension = 2048
+def convert_args(filename, alpha=False, background='#FFF'):
+    args = shlex.split("convert -density 200 texput.pdf")
+    if background:
+        args += shlex.split("-background '%s'" % background)
+    if not alpha:
+        args += shlex.split("-flatten")
+    args += shlex.split("-quality 90 %s" % filename)
+    return args
+
+class logger(object):
+    @classmethod
+    def debug(cls, msg, *args, **kwargs):
+        msg = "[%s] %s" % (app.extensions['correlation_id'], msg)
+        app.logger.debug(msg, *args, **kwargs)
+
+    @classmethod
+    def info(cls, msg, *args, **kwargs):
+        msg = "[%s] %s" % (app.extensions['correlation_id'], msg)
+        app.logger.info(msg, *args, **kwargs)
+
+    @classmethod
+    def warn(cls, msg, *args, **kwargs):
+        msg = "[%s] %s" % (app.extensions['correlation_id'], msg)
+        app.logger.warn(msg, *args, **kwargs)
+
+    @classmethod
+    def error(cls, msg, *args, **kwargs):
+        msg = "[%s] %s" % (app.extensions['correlation_id'], msg)
+        app.logger.error(msg, *args, **kwargs)
+        
 
 @app.route("/")
 def index():
     return render_template("index.html", 
-	     source=open("main.py").read(),
-             languages=languages,
-             formats=formats)
+        source=open("main.py").read(),
+        languages=languages,
+        formats=formats,
+        extra_head=extras.head,
+        extra_foot=extras.foot)
 
 @app.route("/render", methods=["POST"])
 def render():
@@ -71,30 +105,30 @@ def render():
     source = request.form['source']
     mode = request.form['mode']
     fmt = request.form['format']
-    background = request.form['background']
+    background = str(request.form['background'])
     alpha = request.form.get('alpha','off') == "on"
-    request_params = frozenset([lang, source, mode, fmt, background, alpha, time.time()])
-    print(request_params)
 
-    correlation_id = hash(request_params) 
+    request_params = frozenset([lang, source, mode, fmt, background, alpha, time.time()])
+
+    # Generate a correlation id for debugging
+    app.extensions['correlation_id'] = hash(request_params)
+
     assert fmt in formats
     assert lang in languages
 
     background_rgb = hex_to_rgb(background)
 
-    app.logger.info("[%d] Begin handle of request" % correlation_id)
-    app.logger.debug("[%d] Handling request for lang: %s, source: %s" % (correlation_id, lang, source))
+    logger.info("Begin handle of request")
 
     wd = tempfile.mkdtemp()
-    app.logger.info("[%d] Creating temp directory %s" % (correlation_id, wd))
+    logger.info("Creating temp directory %s" % wd)
 
     latexTmpl = texenv.get_template("source-listing.tex")
-    if alpha == True: # Make it transparent
-        latexBody = latexTmpl.render(lang=lang, source=source)
-    else:
-        latexBody = latexTmpl.render(lang=lang, source=source, background="%02d,%02d,%02d" % background_rgb)
+    latexBody = latexTmpl.render(lang=lang, source=source)
 
     inFile = StringIO(latexBody)
+
+    # Generate PDF
     standalone = os.path.join(os.getcwd(), "standalone")
     env = os.environ
     env["TEXINPUTS"] = ".:%s:" % standalone
@@ -102,42 +136,41 @@ def render():
            cwd=wd, shell=True, env=env)
     (stdout, stderr) = p1.communicate(latexBody)
     if p1.returncode != 0:
-        app.logger.error("[%d] pdflatex had an error, check debug logs" % correlation_id)
-        app.logger.debug("[%d] pdflatex stdout: %s" % (correlation_id, stdout))
-        app.logger.debug("[%d] pdflatex stderr: %s" % (correlation_id, stderr))
+        logger.error("pdflatex had an error, check debug logs")
+        logger.debug("pdflatex stdout: %s" % stdout)
+        logger.debug("pdflatex stderr: %s" % stderr)
 
     if fmt == "pdf":
         fileBytes = open(os.path.join(wd, "texput.pdf"), "r").read()
         contentType = "application/pdf"
         fileName = "%s-listing.pdf" % lang.lower()
-
+    # Convert with ImageMagick if request
     elif fmt == "png":
-	# "-background '#RGB' -flatten" for non-transparent images
-	# "-resize 400x400" for resizing
-        p2args = shlex.split("convert -density 200 texput.pdf -quality 90 texput.png")
-        p2 = subprocess.Popen(p2args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
+        args = convert_args("texput.png", alpha=alpha, background=background)
+        p2 = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
         (stdout, stderr) = p2.communicate()
         if p2.returncode != 0:
-            app.logger.error("[%d] convert had an error, check debug logs" % correlation_id)
-            app.logger.debug("[%d] convert stdout: %s" % (correlation_id, stdout))
-            app.logger.debug("[%d] convert stderr: %s" % (correlation_id, stderr))
-
-        fileBytes = open(os.path.join(wd, "texput.png"), "r").read()
-        contentType = "image/png"
-        fileName = "%s-listing.png" % lang.lower()
-
+            logger.error("convert had an error, check debug logs")
+            logger.debug("convert stdout: %s" % stdout)
+            logger.debug("convert stderr: %s" % stderr)
+            abort(503)
+        else:
+            fileBytes = open(os.path.join(wd, "texput.png"), "r").read()
+            contentType = "image/png"
+            fileName = "%s-listing.png" % lang.lower()
     elif fmt == "jpg":
-        p2args = shlex.split("convert -density 200 texput.pdf -flatten texput.jpg")
-        p2 = subprocess.Popen(p2args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
+        args = convert_args("texput.jpg", alpha=False, background=background)
+        p2 = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
         (stdout, stderr) = p2.communicate()
         if p2.returncode != 0:
-            app.logger.error("[%d] convert had an error, check debug logs" % correlation_id)
-            app.logger.debug("[%d] convert stdout: %s" % (correlation_id, stdout))
-            app.logger.debug("[%d] convert stderr: %s" % (correlation_id, stderr))
-
-        fileBytes = open(os.path.join(wd, "texput.jpg"), "r").read()
-        contentType = "image/jpeg"
-        fileName = "%s-listing.jpg" % lang.lower()
+            logger.error("convert had an error, check debug logs")
+            logger.debug("convert stdout: %s" % stdout)
+            logger.debug("convert stderr: %s" % stderr)
+            abort(503)
+        else:
+            fileBytes = open(os.path.join(wd, "texput.jpg"), "r").read()
+            contentType = "image/jpeg"
+            fileName = "%s-listing.jpg" % lang.lower()
 
     resp = make_response(fileBytes)
     resp.headers["Content-Type"] = contentType
@@ -145,9 +178,9 @@ def render():
     if mode == "download":
         resp.headers["Content-Disposition"] = "attachment; filename=%s" % fileName
 
-    app.logger.info("[%d] Removing %s" % (correlation_id, wd))
+    logger.info("Removing %s" % wd)
     shutil.rmtree(wd)
-    app.logger.info("[%d] End handle of request" % correlation_id)
+    logger.info("End handle of request")
     return resp
 
 if __name__ == "__main__":
