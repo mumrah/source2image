@@ -99,6 +99,12 @@ def index():
         extra_head=extras.head,
         extra_foot=extras.foot)
 
+@app.route("/robots.txt")
+def robots():
+    resp = make_response("User-agent: *\nDisallow: /render")
+    resp.headers["Content-Type"] = "text/plain"
+    return resp
+
 @app.route("/render", methods=["POST"])
 def render():
     lang = request.form['lang']
