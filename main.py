@@ -132,15 +132,13 @@ def render():
     latexTmpl = texenv.get_template("source-listing.tex")
     latexBody = latexTmpl.render(lang=lang, source=source)
 
-    inFile = StringIO(latexBody)
-
     # Generate PDF
     standalone = os.path.join(os.getcwd(), "standalone")
     env = os.environ
     env["TEXINPUTS"] = ".:%s:" % standalone
     p1 = subprocess.Popen(["pdflatex"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
            cwd=wd, shell=True, env=env)
-    (stdout, stderr) = p1.communicate(latexBody)
+    (stdout, stderr) = p1.communicate(latexBody.encode('latin-1'))
     if p1.returncode != 0:
         logger.error("pdflatex had an error, check debug logs")
         logger.debug("pdflatex stdout: %s" % stdout)
