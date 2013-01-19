@@ -129,6 +129,10 @@ def render():
     wd = tempfile.mkdtemp()
     logger.info("Creating temp directory %s" % wd)
 
+    # Sanitize the LaTeX source
+    if '\end{lstlisting}' in source:
+        source = source.replace('\end{lstlisting}', '%\\textbackslash)end{lstlisting}')
+
     latexTmpl = texenv.get_template("source-listing.tex")
     latexBody = latexTmpl.render(lang=lang, source=source)
 
