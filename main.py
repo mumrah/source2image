@@ -1,12 +1,9 @@
 from cStringIO import StringIO
-from itertools import count
 import logging
 from logging import Formatter, StreamHandler, DEBUG, INFO
 from logging.handlers import RotatingFileHandler
 import os
-import shlex
 import shutil
-import subprocess
 import tempfile
 import time
 
@@ -58,7 +55,7 @@ languages = ('Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
              'SPARQL', 'tcl', 'TeX', 'VBScript', 'Verilog', 'VHDL',
              'VRML', 'XSLT')
 
-formats = ("png", "pdf", "jpg")
+formats = ("png", "jpg", "pdf")
 
 @app.route("/")
 def index():
