@@ -58,6 +58,7 @@ languages = ('Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
 formats = ("png", "jpg", "pdf")
 
 @app.route("/")
+@app.route("/index.html")
 def index():
     return render_template("index.html", 
         source="print(\"Hello, World\")",
@@ -68,7 +69,7 @@ def index():
 
 @app.route("/robots.txt")
 def robots():
-    resp = make_response("User-agent: *\nDisallow: /render")
+    resp = make_response("User-agent: *\nAllow: /\nDisallow: /render")
     resp.headers["Content-Type"] = "text/plain"
     return resp
 
