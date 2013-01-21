@@ -28,14 +28,19 @@ def render_pdf(latexSource, wd):
     else:
         return os.path.join(wd, "texput.pdf")
 
-def convert(pdfPath, outFileName, wd, alpha=False, background='#FFF', resize=(800,600)):
+def convert(pdfPath, outFileName, wd, alpha=False, background='#FFF', resize=(None, None)):
     args = shlex.split("convert -density 300 %s" % pdfPath)
     if background:
         args += shlex.split("-background '%s'" % background)
     if not alpha:
         args += shlex.split("-flatten")
-    if resize:
-        args += shlex.split("-resize %dx%d" % resize)
+    if not (resize[0] == resize[1] == None):
+        r = ""
+        if resize[0] != None:
+            r += "%d" % resize[0]
+        if resize[1] != None:
+            r += "x%d" % resize[1]
+        args += shlex.split("-resize %s" % r)
     args += shlex.split("-quality 90 %s" % outFileName)
     t1 = time.time()
     proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)

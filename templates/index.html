@@ -84,11 +84,13 @@ label {
     <fieldset>
       <legend>Raster options</legend>
       <div>
-      <label for="width">Width:</label>
+      <label for="width">Restrict Width:</label>
+      <input name="restrictWidth" type="checkbox"/>
       <input id="width" name="width" type="number" min="0" max="2048" step="32" value="800"/>
       </div>
       <div>
-      <label for="height">Height:</label>
+      <label for="height">Restrict Height:</label>
+      <input name="restrictHeight" type="checkbox"/>
       <input id="height" name="height" type="number" min="0" max="2048" step="32" value="640"/>
       </div>
       <div>

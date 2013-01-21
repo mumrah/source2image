@@ -82,8 +82,14 @@ def render():
     fmt = request.form['format']
     background = str(request.form['background'])
     alpha = request.form.get('alpha','off') == "on"
-    width = int(request.form['width'])
-    height = int(request.form['height'])
+    if request.form.get('restrictWidth', 'off') == "on":
+        width = int(request.form['width'])
+    else:
+        width = None
+    if request.form.get('restrictHeight', 'off') == "on":
+        height = int(request.form['height'])
+    else:
+        height = None
 
     request_params = frozenset([lang, source, mode, fmt, background, alpha, time.time()])
 
