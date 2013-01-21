@@ -41,7 +41,7 @@ texenv.variable_start_string = '((('
 texenv.variable_end_string = ')))'
 
 languages = ('Python', 'Ruby', 'Java', 'C', 'C++', 'SQL', 'XML', 'HTML',
-             'Haskell', 'Lisp', 'erlang', 'ABAP', 'ACSL', 'Ada', 'Algol',
+             'Haskell', 'Lisp', 'erlang', 'Scala', 'ABAP', 'ACSL', 'Ada', 'Algol',
              'Ant', 'Assembler', 'Awk', 'bash', 'Basic', 'Caml', 'CIL',
              'Clean', 'Cobol', 'Comal 80', 'command.com', 'Comsol',
              'csh', 'Delphi', 'Eiffel', 'Elan', 'Euphoria', 'Fortran',

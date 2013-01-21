@@ -10,8 +10,14 @@
 \definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
 \definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
 
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+% Define Pig
 \lstdefinelanguage{Pig}
-{keywords={register, foreach, generate, as, flatten, group, by, COUNT, order, limit, desc, load, using,
+{keywords={register, foreach, generate, as, flatten, 
+           group, by, COUNT, order, limit, desc, load, using,
            into, LOWER, store},%
 sensitive=true,%
 alsoletter={\$},%
@@ -20,11 +26,29 @@ string=[b]",%
 string=[b]'%
 }
 
+% Define Scala
+\lstdefinelanguage{Scala}{
+morekeywords={abstract,case,catch,class,def,%
+            do,else,extends,false,final,finally,%
+            for,if,implicit,import,match,mixin,%
+            new,null,object,override,package,%
+            private,protected,requires,return,sealed,%
+            super,this,throw,trait,true,try,%
+            type,val,var,while,with,yield},
+otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+sensitive=true,
+morecomment=[l]{//},
+morecomment=[n]{/*}{*/},
+morestring=[b]",
+morestring=[b]',
+morestring=[b]"""
+}
+
 \lstset{
 basicstyle=\ttfamily\large,
-keywordstyle=\color{javadocblue}\bfseries,
-stringstyle=\color{javagreen},
-commentstyle=\bfseries\color{javared},
+keywordstyle=\color{blue}\bfseries,
+stringstyle=\color{mauve},
+commentstyle=\bfseries\color{dkgreen},
 morecomment=[s][\color{javadocblue}]{/**}{*/},
 tabsize=2,
 escapeinside={\%}{)},
