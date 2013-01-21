@@ -84,6 +84,8 @@ def render():
     fmt = request.form['format']
     background = str(request.form['background'])
     alpha = request.form.get('alpha','off') == "on"
+    width = int(request.form['width'])
+    height = int(request.form['height'])
 
     request_params = frozenset([lang, source, mode, fmt, background, alpha, time.time()])
 
@@ -94,8 +96,11 @@ def render():
     logger = logging.getLogger("source2Image")
     logger = logging.LoggerAdapter(logger, app.extensions)
 
+    # Input validation
     assert fmt in formats
     assert lang in languages
+    assert width <= 2048
+    assert height <= 2048
 
     logger.info("Begin handle of request")
 
@@ -120,7 +125,8 @@ def render():
         contentType = "application/pdf"
         fileName = "%s-listing.pdf" % lang.lower()
     elif fmt == "png":
-        outPath = convert(pdfPath, "texput.png", wd, alpha=alpha, background=background)
+        outPath = convert(pdfPath, "texput.png", wd, 
+                alpha=alpha, background=background, resize=(width, height))
         if not outPath:
             abort(503)
         else:
@@ -128,7 +134,8 @@ def render():
             contentType = "image/png"
             fileName = "%s-listing.png" % lang.lower()
     elif fmt == "jpg":
-        outPath = convert(pdfPath, "texput.jpg", wd, alpha=False, background=background)
+        outPath = convert(pdfPath, "texput.jpg", wd,
+                alpha=False, background=background, resize=(width, height))
         if not outPath:
             abort(503)
         else:
