@@ -53,7 +53,7 @@ label {
   <div style="float:left">  
   <span style="font-size:80%">Due to limitations in the listings package, only Latin-1 characters are recognized</span>
   </br>
-  <textarea onfocus="clearContents(this)" style="text-align:top;font-family:monospace" name="source" rows="30" cols="80">{{ source }}</textarea>
+  <textarea onfocus="clearContents(this)" style="text-align:top;font-family:monospace" name="source" rows="28" cols="80">{{ source }}</textarea>
   </div>
   <div style="float:left; margin-left:1em;">  
     <fieldset>
@@ -85,11 +85,11 @@ label {
       <legend>Raster options</legend>
       <div>
       <label for="width">Width:</label>
-      <input id="width" name="width" type="number" min="1" max="2048" step="100" value="800"/>
+      <input id="width" name="width" type="number" min="0" max="2048" step="32" value="800"/>
       </div>
       <div>
       <label for="height">Height:</label>
-      <input id="height" name="height" type="number" min="1" max="2048" step="100" value="600"/>
+      <input id="height" name="height" type="number" min="0" max="2048" step="32" value="640"/>
       </div>
       <div>
       <label for="background">Background:</label>
